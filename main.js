@@ -5,17 +5,28 @@ class Block {
         this.timeStamp = timeStamp;
         this.data = data;
         this.prevHash = prevHash;
+        this.nonce = 0;
         this.hash = this.calculateHash();
+        
     }
 
     calculateHash(){
-        return SHA256(this.index + this.prevHash + this.timeStamp + JSON.stringify(this.data)).toString();
+        return SHA256(this.index + this.prevHash + this.timeStamp + JSON.stringify(this.data) + this.nonce).toString();
+    }
+
+    minedBlock(difficulty){
+        while(this.hash.substring(0,difficulty) !== Array(difficulty+1).join("0")){
+            this.nonce++;
+            this.hash = this.calculateHash();
+        }
+        console.log('Mined Block: '+ this.hash);
     }
 }
 
 class Blockchain{
     constructor(){
         this.blockchain = [this.genesisBlock()];
+        this.difficulty = 4;
     }
 
     genesisBlock(){
@@ -25,7 +36,7 @@ class Blockchain{
     addBlock(newBlock){
 
         newBlock.prevHash = this.getCurrentBlock().hash;
-        newBlock.hash = newBlock.calculateHash();
+        newBlock.minedBlock(this.difficulty);
         this.blockchain.push(newBlock);
 
     }
@@ -52,11 +63,14 @@ CurrentTime = () =>{
     return now;
 }
 let kashyapCoin = new Blockchain();
-kashyapCoin.addBlock(new Block(1,CurrentTime(),{amount: 4}))
-kashyapCoin.addBlock(new Block(1,CurrentTime(),{amount: 10}))
+
+console.log('Mining of Block 1...... ');
+kashyapCoin.addBlock(new Block(1,CurrentTime(),{amount: 4}));
+console.log('Mining of Block 2...... ');
+kashyapCoin.addBlock(new Block(2,CurrentTime(),{amount: 10}));
 
 
-console.log(JSON.stringify(kashyapCoin,null,4));
+
 
 console.log('Is Blockblockchain valid ? ',kashyapCoin.isblockchainValid());
 
